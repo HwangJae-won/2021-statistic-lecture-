@@ -1,0 +1,246 @@
+---
+title: "통계 프로그래밍 10주차 과제"
+author: "황재원(20185435)"
+date: "11/13/2020"
+output: html_document
+---
+
+
+# correlation analysis
+## 신생아의 재태주수(gestwks)와 출생체중(bweight)에 대하여 상관분석 (data=birth)
+### 1. data 불러오기 
+```{r}
+#install.packages("haven")
+library(haven) #데이터 전처리 패키지
+
+dpath <- "/Users/hwangjaewon/Desktop/LM/" #경로 지정
+birth <- read_sav(paste0(dpath,"birth.sav"))  
+head(birth)
+
+attach(birth)
+
+```
+
+### 2. 정규성 검정
+by 시각화 
+```{r}
+hist(bweight)
+hist(gestwks)
+```
+-> 정확히 정규성 파악 힘듦
+
+by statiscal
+```{r}
+shapiro.test(gestwks)
+shapiro.test(bweight)
+```
+: p-value가 너무 작아 정규성을 따르지 않는다고 할 수 있음
+
+--> 정규성 확인 결과 plot은 정규 분포의 형태와 유사하지만 p-value가 작아 정규성을 가진다는 영가설을 기각하여 정규성을 따르지 않는다고 판단
+
+### 3. spearman test 시행
+```{r}
+# Spearman's correlation coefficient
+cor.test(gestwks, bweight, method="spearman", continuity=T)
+```
+p-value < 2.2e-16 : 0과 유의하게 다르다고 할 수 있음
+rho 0.547396 : moderate한 correlation 
+
+### 4.얼마나 moderate한지 알아보자 
+by scatter plot
+```{r}
+plot(x = gestwks, 
+     y = bweight, 
+     pch = 19, 
+     col = "navy", 
+     xlab = "Gestation weeks (week)", 
+     ylab = "Birth weight (g)", font.lab=2)
+text(x=25, y=4200, labels="r=0.547 (p<0.001) by Spearman's method", cex=0.8, font=2, adj=0) 
+#plot 안에 식 추가해주기 
+
+detach(birth)
+
+```
+
+
+# simple linear regression
+## 허리둘레와 복부지방양의 연구 데이터를 이용하여 CT로부터 얻은 복부지방양을 허리둘레를 이용하여 예측할 수 있는 회귀모형에 대한 분석 (data=fat)
+
+### 1. 데이터 출력
+```{r}
+library(haven)
+
+dpath <- "/Users/hwangjaewon/Desktop/LM/"
+
+data <- read_sav(paste0(dpath,"fat.sav"))
+head(data)
+
+attach(data)
+```
+
+### 2. Correlation checking
+by plot
+```{r}
+plot(waist, fat)
+```
+-> 약간의 선형 관계 확인 가능
+
+by statiscal
+```{r}
+cor.test(fat, waist, data=data, method="spearman")
+```
+-> strong한 positive correlation 확인 가능 
+
+```{r}
+hist(fat)
+shapiro.test(fat)
+```
+-> 정규성 벗어나긴 했지만 회귀 분석에서는 문제 없을 것 같아서 그대로 진행 -> 이상치 있다면 로그 변환 등의 조정 필요
+
+### 3. linear regression model 
+```{r}
+fit <- lm(fat ~ waist, data=data) 
+summary(fit)
+anova(fit)
+```
+-> 베타 헷의 값이 모두 통계적으로 유의하다고 할 수 있음
+r-squared: 0.7343
+p-value: < 2.2e-16 -> 통계적으로 유의미함
+
+```{r}
+#coefficient 확인 가능
+coef(fit)
+coef(fit)[1]
+coef(fit)[2]
+
+confint.default(fit) [1,2]
+```
+
+시각화하여 확인
+```{r}
+opar <- par(no.readonly=T)
+
+par(mfrow=c(3,2))
+plot(fit, which=1:6) #그래프 한 번에 보기 
+
+par(opar)
+```
+
+
+scatter plot으로 경향 보여주기 
+```{r}
+plot(x = waist, 
+     y = fat, 
+     pch = 19, 
+     col = "navy", 
+     xlab = "Waist circumference (cm)", 
+     ylab = "Fat (g)")
+
+abline(fit, lty=3, col="firebrick3")
+
+coef.fit <-coef(fit)
+rsquared <- round(summary(fit)$r.squared*100,2) 
+eq <- paste0("y = ", coef.fit[1], " + ", coef.fit[2], "x /n(r2=", rsquared, "%)")
+text(x=250, y=68, labels=eq, cex=0.9, font=2, adj=1)
+detach(data)
+```
+
+
+# multiple linear regression
+## 나이와 치료 방법에 따른 수술의 효과를 검정하고자 한다. 36명의 데이터를 활용하여 다중회귀분석(data:op.sav)
+
+### 1. data 불러오기 
+```{r}
+library(haven)
+
+dpath <- "/Users/hwangjaewon/Desktop/LM/"
+
+op <- read_sav(paste0(dpath,"op.sav"))
+head(op)
+str(op)
+
+attach(op)
+```
+
+### 2. assumption check : 정규성 
+```{r}
+plot(age, y) 
+shapiro.test(y)
+cor.test(age, y, data=data)
+```
+-> age와 y는 선형 관계 존재있음을 확인할 수 있음 
+-> y: 정규성 만족함
+--> linear regression 진행
+
+### 3. mul. linear regression
+```{r}
+fit <- lm(y ~ age + treatment, data=op)
+summary(fit)
+```
+-> Adjusted R-squared:  0.7637 : 통계적으로 유의
+
+### 4. 교호 작용 추가한 모델
+```{r}
+fit2 <- lm(y ~ age*treatment, data=op)
+summary(fit2)
+```
+age:treatmentB 0.108001    : 통계적으로 유의하지 않음 
+age:treatmentC 3.98e-07 ***
+
+하지만 Adjusted R-squared:  0.9001 -> 설명력 증가하였음 
+
+### 5. 두 모델 비교 
+```{r}
+anova(fit, fit2)
+AIC(fit)
+AIC(fit2)
+```
+-> fit2가 더 좋은 모델임을 알 수 있음
+```{r}
+summary(fit)$adj.r.squared
+summary(fit2)$adj.r.squared
+```
+
+### 6. 최종 모델의 plot
+```{r}
+par(mfrow=c(2,2))
+plot(fit2)
+par(opar)
+
+detach(op)
+```
+
+# 예시
+자동차 배기량(disp)에 대해 갤런당마일(mpg), 실린더개수(cyl), 마력(hp), 후면부 차축비율(drat), 자동차 무게(wt)가 어떤 영향을 주는지 단계선택법을 적용하여 선형회귀분석을 수행
+
+### 1. 데이터 호출
+```{r}
+data(mtcars)
+
+attach(mtcars)
+```
+
+### 2.Assumption checking
+```{r}
+shapiro.test(disp)
+plot(mtcars[,c("disp", "mpg", "cyl", "hp", "drat", "wt")])
+
+```
+
+### 3. Linear regression model
+```{r}
+fit <- lm(disp ~ mpg + cyl + hp + drat + wt, data=mtcars)
+summary(fit)
+car::vif(fit)
+fit2 <- step(fit, direction="backward")
+summary(fit2)
+car::vif(fit2)
+```
+
+### 4. residual plot
+```{r}
+par(mfrow=c(2,2))
+plot(fit2)
+par(opar)
+```
+
