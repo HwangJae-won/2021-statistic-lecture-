@@ -8,6 +8,28 @@
 ## 마크다운 사용법 정리 
 
 ### ` 1. 텍스트 강조하기`
-### ` 4.   이미지 삽입하기`
+
+#### 1) `#`로 강조
+: 1~6개 까지 사용
+
+
+#### 2) 하이라이터 표시
+: 텍스트 앞 뒤에 `
+
+예시)
+`파이팅` 
+
+3. 기울어진 글씨 : 텍스트 앞 뒤에 `*` 또는 `_`
+
+예시)
+*그렇군*
+
+### `2. 목록`
+
+### ` 3.   이미지 삽입하기`
+인터넷에 있는 이미지 불러오기 
 <img src="http://mblogthumb2.phinf.naver.net/MjAxNzEwMDhfMTkx/MDAxNTA3NDY4MjA1Mzky.IRnRPam6YlHFgh4dPpfQ2BBIGj4cnFPt_fpl7hZhifog.YEcfY-iHS52CtZGyRXW_OGAS45hm5-oVeBel5hzt3XQg.PNG.pgh7092/%EC%A3%BC%ED%94%BC%ED%84%B0%EB%85%B8%ED%8A%B8%EB%B6%81_%EB%A1%9C%EA%B3%A0.png?type=w800" alt="Jupyter-img">
+
+컴퓨터 내 파일 업로드 : issue에 업로드 후 복붙해오기
+![IMG_1251](https://user-images.githubusercontent.com/79994991/110829255-41e66900-82db-11eb-9e02-df284688072c.JPG)
 
