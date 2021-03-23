@@ -7,6 +7,4 @@
 https://www.notion.so/3-457b442e40af48b996b32ef7e5404811
 
 ---
-![IMG_1251](https://user-images.githubusercontent.com/79994991/110829255-41e66900-82db-11eb-9e02-df284688072c.JPG)
-
----
+![IMG_9CE0E00C91F0-1](https://user-images.githubusercontent.com/79994991/112204894-91238680-8c57-11eb-9129-dee3890965ed.jpeg)
